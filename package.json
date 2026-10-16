@@ -1,0 +1,44 @@
+{
+  "name": "decoy-duck",
+  "version": "0.1.0",
+  "description": "Проверка фильтра рекламы в браузере: четыре пробы и Vite-плагин, который отдаёт bait-файлы в dev и при сборке.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/N3P0m/decoy-duck.git"
+  },
+  "homepage": "https://github.com/N3P0m/decoy-duck#readme",
+  "bugs": {
+    "url": "https://github.com/N3P0m/decoy-duck/issues"
+  },
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./src/filter-check/index.d.ts",
+      "default": "./src/filter-check/index.js"
+    },
+    "./vite": {
+      "types": "./src/filter-check/vite.d.ts",
+      "default": "./src/filter-check/vite.js"
+    }
+  },
+  "types": "./src/filter-check/index.d.ts",
+  "files": [
+    "src/filter-check",
+    "README.md",
+    "!src/filter-check/**/*.test.js"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test test/*.test.js && tsc --noEmit -p tsconfig.json",
+    "prepublishOnly": "npm test"
+  },
+  "dependencies": {
+    "esbuild": "^0.28.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^8.3.4"
+  }
+}

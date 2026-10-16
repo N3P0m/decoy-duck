@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Проверка фильтра рекламы</title>
+</head>
+<body>
+  <main class="wrap">
+    <p class="kicker">Локальная проверка</p>
+    <h1>Фильтр рекламы на этой странице</h1>
+    <p class="intro">Модуль запускает четыре независимые пробы и сводит их в вердикт с уровнем уверенности. Самая медленная проба держит ответ около секунды.</p>
+
+    <section class="summary" id="summary" data-state="pending" aria-live="polite">
+      <p class="state" id="state">Проверяем</p>
+      <p class="detail" id="detail">Четыре пробы идут параллельно.</p>
+    </section>
+
+    <div class="grid" id="grid"></div>
+
+    <button class="retry" id="retry" type="button">Проверить снова</button>
+
+    <section class="limits">
+      <h2>Как читать результат</h2>
+      <ul>
+        <li>Скрипт или картинка на этом же сайте — точный признак расширения со списком фильтров.</li>
+        <li>Скрытие элемента ловит косметические правила. Блокировщики, которые режут только сеть, этот элемент не трогают.</li>
+        <li>Сторонний рекламный хост ловит DNS-фильтр. Тот же обрыв дают прокси, CSP и недоступный хост, поэтому сам по себе это средняя уверенность. Запрос сообщает хосту IP и User-Agent; его можно отключить через <code>thirdParty: false</code>.</li>
+        <li>Списки фильтров меняются, поэтому рядом с ответом всегда стоит уверенность.</li>
+      </ul>
+    </section>
+  </main>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
