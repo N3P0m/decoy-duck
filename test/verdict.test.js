@@ -16,6 +16,7 @@ describe('decide', () => {
       detected: true,
       status: 'active',
       confidence: 'high',
+      probability: 90,
     });
   });
 
@@ -24,6 +25,16 @@ describe('decide', () => {
       detected: true,
       status: 'active',
       confidence: 'high',
+      probability: 90,
+    });
+  });
+
+  it('поднимает вероятность, когда закрыты и скрипт, и картинка', () => {
+    assert.deepEqual(decide({ ...clear, script: 'blocked', image: 'blocked' }), {
+      detected: true,
+      status: 'active',
+      confidence: 'high',
+      probability: 98,
     });
   });
 
@@ -32,6 +43,7 @@ describe('decide', () => {
       detected: true,
       status: 'active',
       confidence: 'high',
+      probability: 85,
     });
   });
 
@@ -45,6 +57,7 @@ describe('decide', () => {
       detected: true,
       status: 'active',
       confidence: 'medium',
+      probability: 60,
     });
   });
 
@@ -53,6 +66,7 @@ describe('decide', () => {
       detected: true,
       status: 'active',
       confidence: 'medium',
+      probability: 40,
     });
   });
 
@@ -66,6 +80,7 @@ describe('decide', () => {
       detected: null,
       status: 'unknown',
       confidence: 'low',
+      probability: 50,
     });
   });
 
@@ -74,6 +89,7 @@ describe('decide', () => {
       detected: false,
       status: 'inactive',
       confidence: 'high',
+      probability: 5,
     });
   });
 
@@ -87,6 +103,7 @@ describe('decide', () => {
       detected: null,
       status: 'unknown',
       confidence: 'low',
+      probability: 50,
     });
   });
 
@@ -100,6 +117,7 @@ describe('decide', () => {
       detected: null,
       status: 'unknown',
       confidence: 'low',
+      probability: 50,
     });
   });
 
@@ -108,6 +126,7 @@ describe('decide', () => {
       detected: false,
       status: 'inactive',
       confidence: 'high',
+      probability: 5,
     });
   });
 });

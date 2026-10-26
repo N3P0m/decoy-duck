@@ -194,5 +194,6 @@ describe('detectAdblock', () => {
     assert.equal(result.signals.thirdParty, 'skipped');
     assert.equal(result.detected, true);
     assert.equal(result.confidence, 'medium');
+    assert.equal(result.probability, 60);
   });
 });

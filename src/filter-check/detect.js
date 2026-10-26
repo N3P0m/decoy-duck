@@ -36,6 +36,7 @@ function blank() {
     detected: null,
     status: 'unknown',
     confidence: 'low',
+    probability: 50,
     signals: {
       cosmetic: 'inconclusive',
       script: 'inconclusive',
@@ -59,6 +60,7 @@ function blank() {
  *   detected: boolean | null,
  *   status: 'active' | 'inactive' | 'unknown',
  *   confidence: 'high' | 'medium' | 'low',
+ *   probability: number,
  *   signals: {
  *     cosmetic: 'blocked' | 'clear' | 'inconclusive',
  *     script: 'blocked' | 'clear' | 'inconclusive',

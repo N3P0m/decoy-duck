@@ -6,7 +6,7 @@ void plugin.name;
 
 const bait: typeof defaultBait = defaultBait;
 
-const verdict: { detected: boolean | null; status: string; confidence: string } = decide({
+const verdict: { detected: boolean | null; status: string; confidence: string; probability: number } = decide({
   cosmetic: 'clear',
   script: 'clear',
   image: 'clear',

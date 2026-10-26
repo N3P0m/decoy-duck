@@ -21,6 +21,8 @@ export interface DetectResult {
   detected: boolean | null;
   status: DetectStatus;
   confidence: Confidence;
+  /** Вероятность, что фильтр включён, от 0 до 100. */
+  probability: number;
   signals: DetectSignals;
   elapsedMs: number;
 }
@@ -30,7 +32,7 @@ export interface DetectOptions {
   timeout?: number;
   /** Отмена проверки. */
   signal?: AbortSignal;
-  /** Свои URL вместо `defaultBait`. Относительные пути с `/` получают Vite `base`. */
+  /** Свои URL вместо `defaultBait`. Путь с `/` уходит как написан. Префикс Vite `base` добавляет только плагин `filterCheck`. */
   bait?: Partial<BaitUrls>;
   /**
    * Запрос к стороннему рекламному хосту.
@@ -46,4 +48,4 @@ export declare function detectAdblock(options?: DetectOptions): Promise<DetectRe
 
 export declare function decide(
   signals: Partial<DetectSignals>,
-): Pick<DetectResult, 'detected' | 'status' | 'confidence'>;
+): Pick<DetectResult, 'detected' | 'status' | 'confidence' | 'probability'>;

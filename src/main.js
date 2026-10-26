@@ -63,7 +63,7 @@ function formatElapsed(ms) {
 }
 
 function explain(result) {
-  const confidence = `Уверенность ${CONFIDENCE[result.confidence]}.`;
+  const confidence = `Вероятность ${result.probability}%, уверенность ${CONFIDENCE[result.confidence]}.`;
   const elapsed = `Проверка заняла ${formatElapsed(result.elapsedMs)}.`;
   const { cosmetic, script, image, thirdParty } = result.signals;
 

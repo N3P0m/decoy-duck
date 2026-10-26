@@ -10,7 +10,12 @@ function read(signals, key) {
  *
  * @param {{ cosmetic?: string, script?: string, image?: string, thirdParty?: string }} signals
  *   Каждый статус: `blocked`, `clear` или `inconclusive`.
- * @returns {{ detected: boolean | null, status: 'active' | 'inactive' | 'unknown', confidence: 'high' | 'medium' | 'low' }}
+ * @returns {{
+ *   detected: boolean | null,
+ *   status: 'active' | 'inactive' | 'unknown',
+ *   confidence: 'high' | 'medium' | 'low',
+ *   probability: number,
+ * }} `probability` — вероятность, что фильтр включён, от 0 до 100.
  */
 export function decide(signals) {
   const cosmetic = read(signals, 'cosmetic');
@@ -19,15 +24,16 @@ export function decide(signals) {
   const thirdParty = read(signals, 'thirdParty');
 
   if (script === 'blocked' || image === 'blocked') {
-    return { detected: true, status: 'active', confidence: 'high' };
+    const both = script === 'blocked' && image === 'blocked';
+    return { detected: true, status: 'active', confidence: 'high', probability: both ? 98 : 90 };
   }
 
   if (cosmetic === 'blocked' && thirdParty === 'blocked') {
-    return { detected: true, status: 'active', confidence: 'high' };
+    return { detected: true, status: 'active', confidence: 'high', probability: 85 };
   }
 
   if (cosmetic === 'blocked') {
-    return { detected: true, status: 'active', confidence: 'medium' };
+    return { detected: true, status: 'active', confidence: 'medium', probability: 60 };
   }
 
   if (
@@ -36,7 +42,7 @@ export function decide(signals) {
     script === 'clear' &&
     image === 'clear'
   ) {
-    return { detected: true, status: 'active', confidence: 'medium' };
+    return { detected: true, status: 'active', confidence: 'medium', probability: 40 };
   }
 
   const thirdPartyClear = thirdParty === 'clear' || thirdParty === 'skipped';
@@ -47,8 +53,8 @@ export function decide(signals) {
     image === 'clear' &&
     thirdPartyClear
   ) {
-    return { detected: false, status: 'inactive', confidence: 'high' };
+    return { detected: false, status: 'inactive', confidence: 'high', probability: 5 };
   }
 
-  return { detected: null, status: 'unknown', confidence: 'low' };
+  return { detected: null, status: 'unknown', confidence: 'low', probability: 50 };
 }
