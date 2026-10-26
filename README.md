@@ -1,20 +1,22 @@
+[English](README.md) · [Русский](README.ru.md)
+
 # decoy-duck
 
-Проверка фильтра рекламы в браузере. Четыре пробы сводятся в вердикт с уровнем уверенности.
+Detects whether a browser ad filter is on. Four probes collapse into a verdict with a confidence level.
 
-Фильтр смотрит на URL запроса. Четыре файла-приманки лежат на сайте как обычная статика и запрашиваются браузером по известным путям. В бандл приложения они не входят.
+The filter looks at the request URL. Four bait files sit on the site as ordinary static files and the browser requests them at known paths. They are not part of the application bundle.
 
-## Установка
+## Install
 
 ```
 npm install decoy-duck
 ```
 
-Пакет публичный, отдельный registry не нужен. Страница на npm: [decoy-duck](https://www.npmjs.com/package/decoy-duck).
+The package is public. No custom registry is required. Package page: [decoy-duck](https://www.npmjs.com/package/decoy-duck).
 
-## Подключение
+## Setup
 
-Два шага: вызвать проверку и положить файлы-приманки в корень сайта.
+Two steps: call the check and place the bait files at the site root.
 
 ```js
 import { detectAdblock } from 'decoy-duck'
@@ -22,18 +24,18 @@ import { detectAdblock } from 'decoy-duck'
 const result = await detectAdblock()
 ```
 
-Скопируйте файлы из `node_modules/decoy-duck/src/filter-check/baits/` в выходной каталог сборки. Имена остаются такими:
+Copy the files from `node_modules/decoy-duck/src/filter-check/baits/` into the build output directory. Keep these names:
 
-| Файл в пакете | Адрес на сайте |
+| File in the package | URL on the site |
 |---|---|
 | `ad_header.js` | `/ad_header.js` |
 | `assets/ctrl.js` | `/assets/ctrl.js` |
 | `assets/pixel.png` | `/assets/pixel.png` |
 | `ads/images/pixel.png` | `/ads/images/pixel.png` |
 
-Хеш в имени файла меняет URL, и правило фильтра его уже не узнает.
+A hash in the filename changes the URL, and the filter rule no longer matches it.
 
-В Webpack это делает `copy-webpack-plugin`:
+Webpack does this with `copy-webpack-plugin`:
 
 ```js
 import CopyPlugin from 'copy-webpack-plugin'
@@ -52,9 +54,9 @@ export default {
 }
 ```
 
-Эти четыре файла оставляют статикой. Импорт их в свой модуль затягивает содержимое в бандл: браузер не делает запрос по нужному URL, и фильтр ничего не видит.
+Leave these four files as static assets. Importing them into your module pulls their contents into the bundle: the browser never requests the expected URL, and the filter sees nothing.
 
-Сайт из корня домена дополнительных адресов не требует. Если страница открывается из `/app/`, файлы лежат по `/app/ad_header.js` и остальным трём путям, а проверка получает эти адреса явно:
+A site at the domain root needs no extra URLs. If the page is served from `/app/`, the files live at `/app/ad_header.js` and the other three paths, and the check receives those URLs explicitly:
 
 ```js
 import { detectAdblock, defaultBait } from 'decoy-duck'
@@ -70,18 +72,18 @@ const result = await detectAdblock({
 })
 ```
 
-Без плагина путь с ведущим `/` уходит как написан в `bait`. Плагин Vite сам добавляет к такому пути `base`. Абсолютный `https://` в обоих случаях передаётся как есть.
+Without the plugin, a path that starts with `/` is requested exactly as written in `bait`. The Vite plugin prefixes such a path with `base`. An absolute `https://` URL is passed through unchanged in both cases.
 
-## Результат
+## Result
 
-`detected` равен `true`, только если статус `active`. `false` — фильтр не найден. `null` — часть проб не ответила, вывода нет.
+`detected` is `true` only when the status is `active`. `false` means no filter was found. `null` means some probes did not answer, so there is no conclusion.
 
 ```js
 {
   detected: true,
   status: 'active',      // active | inactive | unknown
   confidence: 'high',    // high | medium | low
-  probability: 90,       // 0–100, вероятность что фильтр включён
+  probability: 90,       // 0–100, chance the filter is on
   signals: {
     cosmetic: 'clear',   // blocked | clear | inconclusive
     script: 'blocked',
@@ -92,28 +94,28 @@ const result = await detectAdblock({
 }
 ```
 
-Четыре пробы стартуют параллельно. У скрипта и картинки есть нейтральный контроль. Если не открылся и он, проба остаётся `inconclusive`.
+The four probes start in parallel. The script and the image each have a neutral control. If the control also fails to load, the probe stays `inconclusive`.
 
-- Заблокированный скрипт или картинка на своём домене — `active`, уверенность высокая.
-- Вместе скрытый элемент и недоступный сторонний рекламный хост — `active`, уверенность высокая.
-- Только скрытый элемент — `active`, уверенность средняя.
-- Только сторонний хост, а остальные пробы открылись — `active`, уверенность средняя. Это «рекламный хост недоступен»: фильтр, прокси, DNS или сам хост.
-- Все свои пробы открылись, а сторонняя выключена (`skipped`) или тоже открылась — `inactive`, уверенность высокая.
-- Иначе — `unknown`.
+- A blocked script or image on your own domain means `active`, high confidence.
+- A hidden element together with an unreachable third-party ad host means `active`, high confidence.
+- A hidden element alone means `active`, medium confidence.
+- A third-party host alone, while the other probes loaded, means `active`, medium confidence. That signal is "the ad host is unreachable": a filter, a proxy, DNS, or the host itself.
+- Your own probes loaded, and the third-party probe is off (`skipped`) or also loaded, means `inactive`, high confidence.
+- Anything else is `unknown`.
 
-`probability` — вероятность, что фильтр включён, от 0 до 100:
+`probability` is the chance the filter is on, from 0 to 100:
 
-- оба своих файла закрыты — 98
-- закрыт один из них — 90
-- скрыт элемент и недоступен сторонний хост — 85
-- скрыт только элемент — 60
-- недоступен только сторонний хост — 40
-- свои пробы открылись — 5
-- вывода нет — 50
+- both same-origin files are blocked — 98
+- one of them is blocked — 90
+- the element is hidden and the third-party host is unreachable — 85
+- only the element is hidden — 60
+- only the third-party host is unreachable — 40
+- the same-origin probes loaded — 5
+- there is no conclusion — 50
 
-`decide(signals)` — чистая функция того же правила. Типы лежат рядом с входом пакета.
+`decide(signals)` is a pure function of the same rule. Types ship next to the package entry.
 
-## Опции
+## Options
 
 ```js
 import { detectAdblock, defaultBait } from 'decoy-duck'
@@ -128,15 +130,15 @@ const result = await detectAdblock({
 })
 ```
 
-`timeout` — предел сетевых проб в миллисекундах, по умолчанию 2500. `signal` отменяет проверку.
+`timeout` is the limit for network probes in milliseconds. The default is 2500. `signal` cancels the check.
 
-`thirdParty: false` не отправляет запрос к рекламному хосту. По умолчанию проверка один раз запрашивает `pagead2.googlesyndication.com`. Cookies и referrer не уходят, но хост видит IP и User-Agent. Скрипт Google при этом не выполняется.
+`thirdParty: false` skips the request to the ad host. By default the check requests `pagead2.googlesyndication.com` once. Cookies and the referrer are not sent, but the host sees the IP and the User-Agent. The Google script itself does not run.
 
-Обрыв этого запроса — не доказательство фильтра. Так же выглядят CSP, корпоративный прокси, сбой DNS и недоступность самого хоста. Поэтому одна только сторонняя проба даёт `active` со средней уверенностью. Высокую уверенность дают заблокированные скрипт или картинка на своём домене.
+A dropped request is not proof of a filter. A CSP, a corporate proxy, a DNS failure, and the host being down look the same. A third-party probe on its own therefore yields `active` at medium confidence. High confidence comes from a blocked script or image on your own domain.
 
 ## Vite
 
-В проекте на Vite те же четыре файла может разложить плагин. Это необязательный путь: проверка по-прежнему вызывается через `detectAdblock()`.
+On a Vite project the same four files can be laid out by the plugin. This path is optional: the check is still called through `detectAdblock()`.
 
 ```js
 import { defineConfig } from 'vite'
@@ -147,34 +149,34 @@ export default defineConfig({
 })
 ```
 
-Плагин в dev отдаёт файлы по адресам из `defaultBait` с учётом Vite `base` и при `vite build` копирует их в `build.outDir`. Этот каталог считается от `root` конфига, а не от текущей папки процесса. Файлы остаются в корне выходного каталога: `base` — это префикс URL, а не вложенная папка. Свои пути с ведущим `/` в `bait` получают этот префикс сами.
+In dev the plugin serves the files at the `defaultBait` URLs, including the Vite `base`. On `vite build` it copies them into `build.outDir`. That directory is resolved from the config `root`, not from the process working directory. The files stay at the root of the output directory: `base` is a URL prefix, not a nested folder. Your own `bait` paths that start with `/` receive that prefix automatically.
 
-Импорт пакета в dev собирается в виртуальный модуль с нейтральным id: иначе Vite запросил бы файл из `node_modules/decoy-duck/`, и блокировщик мог бы вырезать сам детектор.
+In dev, importing the package is compiled to a virtual module with a neutral id. Otherwise Vite would request a file from `node_modules/decoy-duck/`, and a blocker could strip the detector itself.
 
-Если файл с тем же путём уже лежит в выходном каталоге и байты отличаются, сборка останавливается и не затирает его.
+If a file at the same path is already in the output directory and the bytes differ, the build stops and does not overwrite it.
 
-## Разработка этого репозитория
+## Developing this repository
 
-Проверка без браузера: `npm test`.
+Check without a browser: `npm test`.
 
-Браузерный прогон с живыми расширениями: `npm run test:browser`. Окно при этом не открывается. Чтобы смотреть демо на экране, по одному расширению за раз: `HEADED=1 npm run test:browser`. Он не входит в `npm test` и перед публикацией не запускается. Chromium качает Playwright, сборки расширений — скрипт, в `.cache/extensions`. Страница открывается как `localtest.me`, а не `localhost`: списки фильтров не трогают локальный хост.
+Browser run against live extensions: `npm run test:browser`. It does not open a window. To watch the demo on screen, one extension at a time: `HEADED=1 npm run test:browser`. That run is not part of `npm test` and does not run before publish. Playwright downloads Chromium. The script downloads extension builds into `.cache/extensions`. The page opens as `localtest.me`, not `localhost`: filter lists leave the local host alone.
 
-Сейчас в прогоне чистый Chromium, uBlock Origin Lite (оптимальный и полный режим), AdGuard, [Adblock Plus](https://adblockplus.org/ru/) и Ghostery. Полный uBlock Origin в текущем релизе всё ещё Manifest V2, Chromium его не загружает.
+The run currently covers plain Chromium, uBlock Origin Lite (optimal and complete modes), AdGuard, [Adblock Plus](https://adblockplus.org/), and Ghostery. The full uBlock Origin release is still Manifest V2, and Chromium does not load it.
 
-`npm run dev` в этом репозитории открывает демо через тот же публичный вход и плагин Vite.
+`npm run dev` in this repository opens the demo through the same public entry and the Vite plugin.
 
-## Публикация
+## Publishing
 
-Пакет публичный, без scope. Репозиторий: `github.com/N3P0m/decoy-duck`. Следующие версии отправляет GitHub Actions по тегу `v*`, файл `.github/workflows/publish.yml`. Версия в теге должна совпасть с `version` в `package.json`. Перед отправкой `prepublishOnly` запускает тесты.
+The package is public and unscoped. Repository: `github.com/N3P0m/decoy-duck`. Later versions are sent by GitHub Actions on a `v*` tag, workflow `.github/workflows/publish.yml`. The version in the tag must match `version` in `package.json`. Before upload, `prepublishOnly` runs the tests.
 
-Первый выпуск имени, которого ещё нет в реестре, делается локально: `npm login`, затем `npm publish`. npm спросит код 2FA. Trusted Publishing настраивается только у уже существующего пакета, поэтому секрет `NPM_TOKEN` workflow не использует.
+The first publish of a name that is not on the registry yet is done locally: `npm login`, then `npm publish`. npm asks for the 2FA code. Trusted Publishing can be configured only after the package exists, so the workflow does not use an `NPM_TOKEN` secret.
 
-Сразу после появления пакета на npmjs.com откройте его → Settings → Trusted Publisher → GitHub Actions:
+Right after the package appears on npmjs.com, open it → Settings → Trusted Publisher → GitHub Actions:
 
 - Organization or user: `N3P0m`
 - Repository: `decoy-duck`
 - Workflow filename: `publish.yml`
-- Environment оставьте пустым
-- Разрешите прямую публикацию через `npm publish`. Новые настройки по умолчанию пускают только `npm stage publish`.
+- Leave Environment empty
+- Allow direct publishing with `npm publish`. New configurations allow only `npm stage publish` by default.
 
-Первая успешная публикация через этот publisher должна пройти в течение 48 часов, иначе настройка сгорает. Поле `repository.url` в `package.json` должно остаться `git+https://github.com/N3P0m/decoy-duck.git`: npm сверяет его с репозиторием, из которого пришёл OIDC-токен. Репозиторий должен быть публичным, иначе provenance не появится.
+The first successful publish through this publisher has to happen within 48 hours, or the configuration expires. `repository.url` in `package.json` must stay `git+https://github.com/N3P0m/decoy-duck.git`: npm compares it with the repository that produced the OIDC token. The repository must be public, or provenance is omitted.

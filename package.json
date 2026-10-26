@@ -1,7 +1,7 @@
 {
   "name": "decoy-duck",
-  "version": "0.1.1",
-  "description": "Проверка фильтра рекламы в браузере: четыре пробы и вероятность, что фильтр включён. Для Vite есть плагин, который отдаёт bait-файлы.",
+  "version": "0.1.2",
+  "description": "Detect whether a browser ad filter is on: four probes and a probability. An optional Vite plugin serves the bait files.",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -26,6 +26,7 @@
   "files": [
     "src/filter-check",
     "README.md",
+    "README.ru.md",
     "!src/filter-check/**/*.test.js"
   ],
   "scripts": {
