@@ -10,7 +10,7 @@
 npm install decoy-duck
 ```
 
-Пакет публичный, отдельный registry не нужен.
+Пакет публичный, отдельный registry не нужен. Страница на npm: [decoy-duck](https://www.npmjs.com/package/decoy-duck).
 
 ## Подключение
 
