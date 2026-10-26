@@ -36,10 +36,4 @@ jobs:
       - run: npm test
 
       - name: Публикация в npm
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: |
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            unset NODE_AUTH_TOKEN
-          fi
-          npm publish
+        run: npm publish

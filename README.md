@@ -165,15 +165,16 @@ export default defineConfig({
 
 ## Публикация
 
-Пакет публичный, без scope. Репозиторий: `github.com/N3P0m/decoy-duck`. В npm его отправляет GitHub Actions по тегу `v*`, файл `.github/workflows/publish.yml`. Версия в теге должна совпасть с `version` в `package.json`: тег `v0.1.0` публикует `0.1.0`. Перед отправкой `prepublishOnly` запускает тесты.
+Пакет публичный, без scope. Репозиторий: `github.com/N3P0m/decoy-duck`. Следующие версии отправляет GitHub Actions по тегу `v*`, файл `.github/workflows/publish.yml`. Версия в теге должна совпасть с `version` в `package.json`. Перед отправкой `prepublishOnly` запускает тесты.
 
-Первый выпуск не может пройти только через trusted publishing: страница настроек пакета появляется после того, как имя уже есть в реестре. Для `0.1.0` положите в секрет репозитория `NPM_TOKEN` — granular access token с правом публикации. Workflow возьмёт его, если trusted publisher ещё не настроен.
+Первый выпуск имени, которого ещё нет в реестре, делается локально: `npm login`, затем `npm publish`. npm спросит код 2FA. Trusted Publishing настраивается только у уже существующего пакета, поэтому секрет `NPM_TOKEN` workflow не использует.
 
-После первого выпуска на npmjs.com откройте пакет → Settings → Trusted Publisher → GitHub Actions и укажите:
+Сразу после появления пакета на npmjs.com откройте его → Settings → Trusted Publisher → GitHub Actions:
 
 - Organization or user: `N3P0m`
 - Repository: `decoy-duck`
 - Workflow filename: `publish.yml`
+- Environment оставьте пустым
 - Разрешите прямую публикацию через `npm publish`. Новые настройки по умолчанию пускают только `npm stage publish`.
 
-Поле `repository.url` в `package.json` должно остаться `git+https://github.com/N3P0m/decoy-duck.git`: npm сверяет его с репозиторием, из которого пришёл OIDC-токен. Репозиторий должен быть публичным, иначе provenance не появится. Дальше секрет `NPM_TOKEN` можно удалить: публикация пойдёт по короткому OIDC-токену.
+Первая успешная публикация через этот publisher должна пройти в течение 48 часов, иначе настройка сгорает. Поле `repository.url` в `package.json` должно остаться `git+https://github.com/N3P0m/decoy-duck.git`: npm сверяет его с репозиторием, из которого пришёл OIDC-токен. Репозиторий должен быть публичным, иначе provenance не появится.
